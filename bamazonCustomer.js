@@ -2,16 +2,15 @@ var mysql = require("mysql");
 var inquirer = require("inquirer");
 
 var itemID;
-var itemQuantity;
+var quantityReq;
+var itemPrice;
+
+
 
 var connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
-
-  // Your username
   user: "root",
-
-  // Your password
   password: "",
   database: "bamazon"
 });
@@ -33,7 +32,7 @@ function readProducts() {
 	    				"\n");
 	    }
 	    promptItem();
-	    connection.end();
+	    // connection.end();
 
 	});
 }
@@ -53,14 +52,52 @@ function promptItem() {
 	    }
 	  ])
 	  .then(function(inquirerResponse) {
-	  	// console.log(inquirerResponse.itemID);
-	  	// console.log(inquirerResponse.quantity);
-	  	itemID = inquirerResponse.itemID;
-	  	itemQuantity = inquirerResponse.quantity;
 
-	  	console.log(itemID);
-	  	console.log(itemQuantity);
+	  	itemID = parseInt(inquirerResponse.itemID);
+	  	quantityReq = parseInt(inquirerResponse.quantity);
 
+	  	itemCheck();
 
 	  });
 }
+
+
+function itemCheck() {
+	connection.query("SELECT * FROM products WHERE ID=" + itemID, function(err, res) {
+	    if (err) throw err;
+	    var itemQuantity = res[0].stock_quantity;
+	    var itemPrice = res[0].price;
+	    var newQuantity = itemQuantity - quantityReq;
+
+	    if (itemQuantity >= quantityReq) {
+
+	    	  var query = connection.query(
+			    "UPDATE products SET ? WHERE ?",
+			    [
+			      {
+			        stock_quantity: newQuantity
+			      },
+			      {
+			        id: itemID
+			      }
+			    ],
+			    function(err, res) {
+
+			      
+			    }
+			  );
+
+			var total = itemPrice * quantityReq;
+			console.log("Thanks for shooping at Bamazon, the Bammerest Zon in town! Your total is $" + total);
+	    
+	    } else {
+	    	console.log("This is embarassing! The quantity request exceeds our inventory of", itemQuantity + ".");
+	    	promptItem();
+	    }
+
+
+
+	    // connection.end();
+	});
+}
+
