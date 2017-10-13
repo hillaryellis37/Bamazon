@@ -32,8 +32,6 @@ function readProducts() {
 	    				"\n");
 	    }
 	    promptItem();
-	    // connection.end();
-
 	});
 }
 
@@ -42,7 +40,7 @@ function promptItem() {
 	  .prompt([
 	    {
 	      type: "input",
-	      message: "Please enter item the 'ID' to purchase: ",
+	      message: "Please enter the item 'ID' to make a purchase: ",
 	      name: "itemID"
 	    },
 	   	{
@@ -88,11 +86,27 @@ function itemCheck() {
 			  );
 
 			var total = itemPrice * quantityReq;
-			console.log("Thanks for shooping at Bamazon, the Bammerest Zon in town! Your total is $" + total);
-	    
+			console.log("\nThanks for shooping at Bamazon, the Bammerest Zon in town! Your total is $" + total.toFixed(2) + "\n\n");
+		    inquirer
+			  .prompt([
+			    {
+			      type: "list",
+			      message: "Would you like to purchase another item?\n",
+			      choices: ["Yes", "No, please exit me from the Bamazon"],
+			      name: "again"
+			    }
+	
+			  ])
+			  .then(function(inquirerResponse) {
+
+				if (inquirerResponse.again === "Yes") {
+					promptItem();
+				}
+
+	  });
 	    } else {
-	    	console.log("This is embarassing! The quantity request exceeds our inventory of", itemQuantity + ".");
-	    	promptItem();
+	    	console.log("\nThis is embarassing! The quantity request exceeds our inventory of", itemQuantity + ".\n");
+	    	promptItem(); 
 	    }
 
 
